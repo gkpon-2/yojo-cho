@@ -62,7 +62,9 @@
   function getDay(key, create = true) {
     if (!state.days[key]) {
       if (!create) return null;
-      state.days[key] = { toilet: { small: 0, large: 0 }, rehab: [] };
+      state.days[key] = { toilet: { small: 0, large: 0 }, rehab: [], notes: '' };
+    } else {
+      if (typeof state.days[key].notes !== 'string') state.days[key].notes = '';
     }
     return state.days[key];
   }
@@ -117,6 +119,11 @@
   // ===== Rendering =====
   const view = document.getElementById('view');
 
+  function autoGrow(ta) {
+    ta.style.height = 'auto';
+    ta.style.height = Math.max(96, ta.scrollHeight + 2) + 'px';
+  }
+
   function el(tag, props = {}, ...children) {
     const e = document.createElement(tag);
     for (const [k, v] of Object.entries(props || {})) {
@@ -144,6 +151,24 @@
       el('div', { class: 'date-main' }, fmtDateLong(k)),
       el('div', { class: 'date-sub' }, `${weekday(k)}曜日`)
     ));
+
+    // Notes (zakki) section - free-form daily journal
+    const notesTa = el('textarea', {
+      class: 'notes-input',
+      placeholder: '・面会、差し入れ\n・薬や治療の変化\n・先生・看護師の話\n・入浴、洗髪\n・気分、できごと…',
+      rows: '3',
+      oninput: (e) => {
+        day.notes = e.target.value;
+        save();
+        autoGrow(e.target);
+      }
+    });
+    notesTa.value = day.notes || '';
+    view.appendChild(el('section', { class: 'section' },
+      el('h2', { class: 'section-title' }, '雑記'),
+      notesTa
+    ));
+    setTimeout(() => autoGrow(notesTa), 0);
 
     // Toilet section
     const toiletTitle = el('h2', { class: 'section-title' }, '排泄');
@@ -278,6 +303,13 @@
           el('div', {}, el('span', { class: 'lbl' }, 'リハビリ'), `${d.rehab.length} 回`)
         )
       );
+
+      if ((d.notes || '').trim()) {
+        card.appendChild(el('div', { class: 'history-memo' },
+          el('div', { class: 'history-memo-label' }, '雑記'),
+          el('div', { class: 'history-memo-text' }, d.notes)
+        ));
+      }
 
       if (d.rehab.length > 0) {
         const notes = el('div', { class: 'history-notes' });

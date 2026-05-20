@@ -157,6 +157,54 @@ input[type=number]::-webkit-inner-spin-button {
 }
 .card + .card { margin-top: 12px; }
 
+/* Notes (zakki) input */
+.notes-input {
+  width: 100%;
+  min-height: 96px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  resize: none;
+  overflow: hidden;
+  font-family: inherit;
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  display: block;
+  transition: background 0.15s, border-color 0.15s;
+}
+.notes-input:focus {
+  outline: none;
+  border-color: var(--sage);
+  background: #fffcf3;
+}
+.notes-input::placeholder {
+  color: var(--ink-3);
+  line-height: 1.75;
+}
+
+.history-memo {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+.history-memo-label {
+  font-family: 'Klee One', serif;
+  font-size: 0.74rem;
+  color: var(--ink-3);
+  margin-bottom: 4px;
+  letter-spacing: 0.08em;
+}
+.history-memo-text {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* Toilet counter */
 .toilet-grid {
   display: grid;
