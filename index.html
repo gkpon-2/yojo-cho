@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#f3ede1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="養生帖">
+  <title>養生帖</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="header-inner">
+        <h1 class="brand">養生帖</h1>
+        <button id="menuBtn" class="icon-btn" aria-label="メニュー">
+          <svg viewBox="0 0 24 24" width="22" height="22"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="view" class="view"></main>
+
+    <nav class="tabbar" role="tablist">
+      <button class="tab is-active" data-tab="today" role="tab">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2.5 4 6.5v5.2c0 4.8 3.3 9 8 10 4.7-1 8-5.2 8-10V6.5L12 2.5Z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        <span>今日</span>
+      </button>
+      <button class="tab" data-tab="history" role="tab">
+        <svg viewBox="0 0 24 24" width="22" height="22"><rect x="3.5" y="4.5" width="17" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 9h17M8 2.5v4M16 2.5v4" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+        <span>履歴</span>
+      </button>
+      <button class="tab" data-tab="trend" role="tab">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 17l5-6 4 3 6-9 3 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>推移</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Menu sheet -->
+  <div id="menu" class="sheet" hidden>
+    <div class="sheet-backdrop" data-close></div>
+    <div class="sheet-panel">
+      <div class="sheet-handle"></div>
+      <button class="sheet-item" id="exportBtn">
+        <span>データを書き出す (JSON)</span>
+        <span class="sheet-meta">バックアップ</span>
+      </button>
+      <label class="sheet-item">
+        <span>データを読み込む</span>
+        <span class="sheet-meta">復元</span>
+        <input type="file" id="importInput" accept="application/json" hidden>
+      </label>
+      <button class="sheet-item danger" id="clearBtn">
+        <span>全データ消去</span>
+        <span class="sheet-meta">取り消し不可</span>
+      </button>
+      <button class="sheet-item" data-close>閉じる</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="./app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
