@@ -50,6 +50,18 @@
     <div class="sheet-backdrop" data-close></div>
     <div class="sheet-panel">
       <div class="sheet-handle"></div>
+      <div class="sheet-setting">
+        <div class="sheet-setting-title">日付の切り替え時刻</div>
+        <label class="sheet-setting-row" for="dayStartSel">
+          <span>全般 (リハビリ等)</span>
+          <select id="dayStartSel"></select>
+        </label>
+        <label class="sheet-setting-row" for="toiletStartSel">
+          <span>排泄</span>
+          <select id="toiletStartSel"></select>
+        </label>
+        <div class="sheet-setting-hint">指定した時刻より前は前日の記録になります</div>
+      </div>
       <button class="sheet-item" id="exportBtn">
         <span>データを書き出す (JSON)</span>
         <span class="sheet-meta">バックアップ</span>

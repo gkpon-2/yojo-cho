@@ -1,5 +1,5 @@
 /* Service worker - cache shell for offline use */
-const CACHE = 'yojo-cho-v1';
+const CACHE = 'yojo-cho-v3';
 const ASSETS = [
   './',
   './index.html',

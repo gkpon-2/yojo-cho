@@ -6,7 +6,13 @@
   const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
 
   // ===== State =====
-  let state = load() || { days: {} };
+  let state = load() || { days: {}, settings: { dayStartHour: 0, toiletStartHour: 0 } };
+  // Migrate older saved data
+  if (!state.settings) state.settings = { dayStartHour: 0, toiletStartHour: 0 };
+  if (typeof state.settings.dayStartHour !== 'number') state.settings.dayStartHour = 0;
+  if (typeof state.settings.toiletStartHour !== 'number') {
+    state.settings.toiletStartHour = state.settings.dayStartHour;
+  }
   let currentTab = 'today';
 
   function save() {
@@ -21,11 +27,18 @@
   }
 
   // ===== Date helpers =====
-  function dateKey(d = new Date()) {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
+  function shiftedDateKey(d, offsetH) {
+    const shifted = new Date(d.getTime() - offsetH * 3600 * 1000);
+    const y = shifted.getFullYear();
+    const m = String(shifted.getMonth() + 1).padStart(2, '0');
+    const day = String(shifted.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
+  }
+  function dateKey(d = new Date()) {
+    return shiftedDateKey(d, (state.settings && state.settings.dayStartHour) || 0);
+  }
+  function toiletDateKey(d = new Date()) {
+    return shiftedDateKey(d, (state.settings && state.settings.toiletStartHour) || 0);
   }
   function parseKey(k) {
     const [y, m, d] = k.split('-').map(Number);
@@ -59,7 +72,7 @@
 
   // ===== Actions =====
   function incToilet(type, delta) {
-    const d = getDay(dateKey());
+    const d = getDay(toiletDateKey());
     d.toilet[type] = Math.max(0, (d.toilet[type] || 0) + delta);
     save();
     renderToday();
@@ -123,7 +136,8 @@
   function renderToday() {
     const k = dateKey();
     const day = getDay(k);
-    const d = new Date();
+    const tk = toiletDateKey();
+    const tDay = state.days[tk] || { toilet: { small: 0, large: 0 }, rehab: [] };
 
     view.innerHTML = '';
     view.appendChild(el('div', { class: 'date-row' },
@@ -132,11 +146,16 @@
     ));
 
     // Toilet section
+    const toiletTitle = el('h2', { class: 'section-title' }, '排泄');
+    const tHour = state.settings.toiletStartHour || 0;
+    if (tHour !== (state.settings.dayStartHour || 0)) {
+      toiletTitle.appendChild(el('span', { class: 'section-meta' }, `${tHour}:00切替`));
+    }
     view.appendChild(el('section', { class: 'section' },
-      el('h2', { class: 'section-title' }, '排泄'),
+      toiletTitle,
       el('div', { class: 'toilet-grid' },
-        toiletCell('小', 'small', day.toilet.small || 0, false),
-        toiletCell('大', 'large', day.toilet.large || 0, true)
+        toiletCell('小', 'small', tDay.toilet.small || 0, false),
+        toiletCell('大', 'large', tDay.toilet.large || 0, true)
       )
     ));
 
@@ -503,6 +522,41 @@
     el.addEventListener('click', (e) => {
       if (e.target.closest('[data-close]') === e.currentTarget) menu.hidden = true;
     });
+  });
+
+  // Hour selectors
+  function populateHourSelect(sel, current) {
+    sel.innerHTML = '';
+    for (let h = 0; h < 24; h++) {
+      const opt = document.createElement('option');
+      opt.value = String(h);
+      let label = `${h}:00`;
+      if (h === 0) label += ' (深夜)';
+      else if (h === 6) label += ' (朝)';
+      else if (h === 12) label += ' (正午)';
+      else if (h === 18) label += ' (夕方)';
+      opt.textContent = label;
+      sel.appendChild(opt);
+    }
+    sel.value = String(current);
+  }
+
+  const dayStartSel = document.getElementById('dayStartSel');
+  populateHourSelect(dayStartSel, state.settings.dayStartHour || 0);
+  dayStartSel.addEventListener('change', (e) => {
+    state.settings.dayStartHour = Number(e.target.value);
+    save();
+    setTab(currentTab);
+    toast(`全般の切替時刻: ${state.settings.dayStartHour}:00`);
+  });
+
+  const toiletStartSel = document.getElementById('toiletStartSel');
+  populateHourSelect(toiletStartSel, state.settings.toiletStartHour || 0);
+  toiletStartSel.addEventListener('change', (e) => {
+    state.settings.toiletStartHour = Number(e.target.value);
+    save();
+    setTab(currentTab);
+    toast(`排泄の切替時刻: ${state.settings.toiletStartHour}:00`);
   });
 
   document.getElementById('exportBtn').addEventListener('click', () => {
